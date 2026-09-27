@@ -61,6 +61,7 @@ void preencherMatriz(int **matriz, int tamanho, int valor);
 void imprimirCampoProprio(int **campo, int tamanho);
 void imprimirCampoAdversario(int **campo, int tamanho);
 void configuracaoPadrao(Configuracao *config);
+int configuracoesIguais(Configuracao primeira, Configuracao segunda);
 int salvarConfiguracao(Configuracao *config);
 int carregarConfiguracao(Configuracao *config);
 int salvarJogo(Jogo *jogo);
@@ -332,6 +333,13 @@ void configuracaoPadrao(Configuracao *config)
 {
     config->tamanho = TAMANHO_MINIMO;
     config->quantidadeNavios = NAVIOS_MINIMOS;
+}
+
+/* Verifica se duas configuracoes possuem os mesmos valores. */
+int configuracoesIguais(Configuracao primeira, Configuracao segunda)
+{
+    return primeira.tamanho == segunda.tamanho &&
+           primeira.quantidadeNavios == segunda.quantidadeNavios;
 }
 
 /* Salva somente a configuracao em arquivo binario. */
@@ -961,6 +969,7 @@ void executarPartida(Jogo *jogo)
 /* Permite mudar tamanho do campo e quantidade de navios. */
 void configurarJogo(Configuracao *config)
 {
+    Configuracao novaConfig;
     int tamanho;
     int navios;
     int maximoNavios;
@@ -982,8 +991,16 @@ void configurarJogo(Configuracao *config)
         navios = maximoNavios;
     }
 
-    config->tamanho = tamanho;
-    config->quantidadeNavios = navios;
+    novaConfig.tamanho = tamanho;
+    novaConfig.quantidadeNavios = navios;
+
+    if (configuracoesIguais(*config, novaConfig))
+    {
+        printf("Configuracao mantida. O jogo salvo foi preservado.\n");
+        return;
+    }
+
+    *config = novaConfig;
 
     if (salvarConfiguracao(config))
     {
